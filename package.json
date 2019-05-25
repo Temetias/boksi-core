@@ -1,0 +1,22 @@
+{
+	"name": "boksi-core",
+	"version": "0.0.1",
+	"description": "Core functionality for boksi",
+	"main": "build/src/boksi.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"tsc": "tsc",
+		"dev": "ts-node-dev --respawn --transpileOnly ./src/boksi.ts",
+		"prod": "tsc && node ./build/src/boksi.js"
+	},
+	"author": "Teemu Karppinen",
+	"license": "MIT",
+	"dependencies": {
+		"ts-node-dev": "^1.0.0-pre.39",
+		"typescript": "^3.4.5"
+	},
+	"devDependencies": {
+		"@types/node": "^12.0.2",
+		"tslint": "^5.16.0"
+	}
+}
