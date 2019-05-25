@@ -1,9 +1,0 @@
-{
-    "coreConfig": {
-        "port": 8080,
-        "devPort": 8080
-    },
-    "bloksConfig": {
-        "bloksDir": "../bloks"
-    }
-}
