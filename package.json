@@ -2,12 +2,12 @@
 	"name": "boksi-core",
 	"version": "0.0.1",
 	"description": "Core functionality for boksi",
-	"main": "build/src/boksi.js",
+	"main": "build/src/Boksi.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"tsc": "tsc",
-		"dev": "ts-node-dev --respawn --transpileOnly ./src/boksi.ts",
-		"prod": "tsc && node ./build/src/boksi.js"
+		"dev": "ts-node-dev --respawn --transpileOnly ./src/Boksi.ts",
+		"prod": "tsc && node ./build/src/Boksi.js"
 	},
 	"author": "Teemu Karppinen",
 	"license": "MIT",

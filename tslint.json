@@ -18,7 +18,8 @@
 		"indent": [true, "tabs", 4],
 		"no-console": false,
 		"arrow-parens": false,
-		"array-type": false
+		"array-type": false,
+		"no-string-literal": false
 	},
 	"rulesDirectory": []
 }
