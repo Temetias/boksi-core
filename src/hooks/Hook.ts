@@ -12,14 +12,14 @@ export default class Hook<T> {
 	 * 
 	 */
 	public constructor() {
-
+		// TODO
 	}
 
-	public attach(callback: ((data: T) => void)): void {
+	public link(callback: ((data: T) => void)): void {
 		this.callbacks.push(callback);
 	}
 
-	public detach(): void {
+	public unlink(callback: ((data: T) => void)): void {
 		// TODO:
 	}
 

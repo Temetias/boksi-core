@@ -42,7 +42,6 @@ export default class BloksHandler extends LogMember {
 		return this.bloks;
 	}
 
-
 	/**
 	 * 
 	 */

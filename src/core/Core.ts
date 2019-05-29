@@ -40,6 +40,7 @@ export default class Core extends LogMember {
 		this.bloksHandler = new BloksHandler(config.bloksConfig);
 		this.server = this.buildServer();
 		this.startServer();
+		this.hooks.launch.fire();
 	}
 
 	/**

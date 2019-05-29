@@ -29,10 +29,9 @@ export default class Blok extends LogMember {
 	private blokInitCallback: (() => void) | null = null;
 
 	/**
-	 *  
+	 * 
 	 */
 	private readonly config: configs.BlokConfig;
-
 
 	/**
 	 * 

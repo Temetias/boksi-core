@@ -9,7 +9,7 @@ export default class HookHandler {
 	/**
 	 * 
 	 */
-	public init: Hook<void> = new Hook();
+	public launch: Hook<void> = new Hook();
 
 	/**
 	 * 
