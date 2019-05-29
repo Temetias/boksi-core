@@ -19,7 +19,8 @@
 		"no-console": false,
 		"arrow-parens": false,
 		"array-type": false,
-		"no-string-literal": false
+		"no-string-literal": false,
+		"variable-name": false
 	},
 	"rulesDirectory": []
 }

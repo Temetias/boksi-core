@@ -1,90 +1,69 @@
-import { join } from "path";
 import { configs } from "../../types/configs/configs";
 import LogMember from "../log/LogMember";
-import { safely } from "../utils/patterns";
 
 /**
- * 
+ *
  */
-export default class Blok extends LogMember {
+export default abstract class Blok extends LogMember {
 
 	/**
-	 * 
+	 *
 	 */
-	public readonly name: string;
+	public name: string;
 
 	/**
-	 * 
+	 *
 	 */
 	public readonly dirPath: string;
 
 	/**
-	 * 
+	 *
 	 */
-	public isEnabled: boolean = false;
+	protected readonly config: configs.BlokConfig;
 
 	/**
-	 * 
+	 *
 	 */
-	private blokInitCallback: (() => void) | null = null;
+	private _isEnabled: boolean = false;
 
 	/**
-	 * 
+	 *
 	 */
-	private readonly config: configs.BlokConfig;
+	get isEnabled(): boolean {
+		return this._isEnabled;
+	}
 
 	/**
-	 * 
+	 *
 	 */
 	public constructor(config: configs.BlokConfig, dirPath: string) {
 		super(config.name);
-		this.config = config;
 		this.dirPath = dirPath;
-		this.name = this.config.name;
+		this.config = config;
+		this.name = config.name;
 	}
 
 	/**
-	 * 
+	 *
 	 */
-	public async build(): Promise<boolean> {
-		const entryPoint = join(this.dirPath, this.config.entryPoint);
-		const [error, blokInit] = await safely<{default: () => void}>(import(entryPoint));
-		if (error) {
-			this.log("Failed to build blok!", error);
-			return false;
-		}
-		this.blokInitCallback = blokInit!.default;
-		return true;
-	}
+	public abstract async build(): Promise<boolean>;
 
 	/**
-	 * 
+	 *
 	 */
-	public enable(): void {
-		this.init();
-		this.isEnabled = true;
+	public async enable(): Promise<void> {
+		this._isEnabled = await this.launch();
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public disable(): void {
-		this.isEnabled = false;
+		this._isEnabled = false;
 	}
 
 	/**
-	 * 
+	 *
 	 */
-	private init(): void {
-		if (!this.blokInitCallback) {
-			this.log("Attempted to call blok-init without blok-init being assigned thus blok not intialized!");
-			return;
-		}
-		try {
-			this.log(`Initializing blok "${this.name}"...`);
-			this.blokInitCallback();
-		} catch (initError) {
-			this.log("Failed to initialize blok!", initError);
-		}
-	}
+	protected abstract async launch(): Promise<boolean>;
 }
