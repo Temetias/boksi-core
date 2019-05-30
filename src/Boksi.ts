@@ -8,12 +8,12 @@ import HookHandler from "./hooks/HookHandler";
 class Boksi {
 
 	/**
-	 * 
+	 *
 	 */
 	public hooks = new HookHandler();
 
 	/**
-	 * 
+	 *
 	 */
 	private core = new Core(config, this.hooks);
 

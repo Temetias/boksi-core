@@ -36,7 +36,8 @@ export default class IPCBlok extends Blok {
 	 *
 	 */
 	public launch(): boolean {
-		fork(this.config.entryPoint!);
+		this.log("Initializing...");
+		this.process = fork(join(this.dirPath, this.config.entryPoint!));
 		return true;
 	}
 }

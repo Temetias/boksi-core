@@ -19,6 +19,11 @@ export default abstract class Blok extends LogMember {
 	/**
 	 *
 	 */
+	public readonly type: string;
+
+	/**
+	 *
+	 */
 	protected readonly config: configs.BlokConfig;
 
 	/**
@@ -41,6 +46,7 @@ export default abstract class Blok extends LogMember {
 		this.dirPath = dirPath;
 		this.config = config;
 		this.name = config.name!;
+		this.type = config.type!;
 	}
 
 	/**
@@ -51,8 +57,8 @@ export default abstract class Blok extends LogMember {
 	/**
 	 *
 	 */
-	public async enable(): Promise<void> {
-		this._isEnabled = await this.launch();
+	public enable(): void {
+		this._isEnabled = this.launch();
 	}
 
 	/**

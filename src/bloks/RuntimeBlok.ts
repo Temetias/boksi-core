@@ -42,7 +42,7 @@ export default class RuntimeBlok extends Blok {
 			return false;
 		}
 		try {
-			this.log(`Initializing blok "${this.name}"...`);
+			this.log("Initializing...");
 			this.blokLaunchCallback();
 			return true;
 		} catch (initError) {

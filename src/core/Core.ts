@@ -35,18 +35,20 @@ export default class Core extends LogMember {
 		super("Core");
 		this.log("Initializing core...");
 		this.config = config;
-
-		// Bloks
+		this.hooks = hookHandler;
 		const blokDirs = this.getBlokDirs();
 		const blokBuildPromises = blokDirs.map(blokDir => this.buildBlok(blokDir));
-		Promise.all<void>(blokBuildPromises).catch(buildError => this.log(
-			`One or more of the blok builds failed! There is probably more information above.`,
-			buildError,
-		));
+		Promise.all<void>(blokBuildPromises)
+			.catch(buildError => this.log(
+				`One or more of the blok builds failed! There is probably more information above.`,
+				buildError,
+			))
+			.finally(() => {
+				this.bloks.forEach(blok => blok.enable());
+				this.hooks.launch.fire();
+			})
+		;
 
-		// Hooks
-		this.hooks = hookHandler;
-		this.hooks.launch.fire();
 	}
 
 	/**
@@ -56,11 +58,11 @@ export default class Core extends LogMember {
 		if (!this.config.bloksDir) {
 			this.log("No blok-directory set in boksi-conf.json!");
 			return [];
-		} else if (!existsSync(join(__dirname, "../../", this.config.bloksDir))) { // TODO: Fix path on prod mode.
+		} else if (!existsSync(join(__dirname, "../../../", this.config.bloksDir))) { // TODO: Fix path on prod mode.
 			this.log("Blok-directory configuration points to a non-existing directory!");
 			return [];
 		} else {
-			const bloksDir = join(__dirname, "../../", this.config.bloksDir); // TODO: Fix path on prod mode.
+			const bloksDir = join(__dirname, "../../../", this.config.bloksDir); // TODO: Fix path on prod mode.
 			return readdirSync(bloksDir)
 				.map(name => join(bloksDir, name))
 				.filter(this.isBlokDirectory)
@@ -79,7 +81,7 @@ export default class Core extends LogMember {
 	 *
 	 */
 	private async buildBlok(dir: string): Promise<void> {
-		const configPath = join(dir, "blok-conf.json");
+		const configPath = join(dir, "blok_setup/blok-conf.json");
 		const [configError, config] = await safely<configs.BlokConfig>(import(configPath));
 		if (configError) {
 			this.log(`Could not locate blok-conf.json from ${dir} thus blok not added!`, configError);
@@ -94,10 +96,22 @@ export default class Core extends LogMember {
 		}
 		switch (config!.type!.toLowerCase()) {
 			case "ipc":
-				this.bloks.push(new IPCBlok(config!, dir))
+				const ipcBlok = new IPCBlok(config!, dir);
+				if (ipcBlok.build()) {
+					this.bloks.push(ipcBlok);
+				}
+				break
 			;
 			case "runtime":
-				this.bloks.push(new RuntimeBlok(config!, dir))
+				const runtimeBlok = new RuntimeBlok(config!, dir);
+				if (runtimeBlok.build()) {
+					this.bloks.push(runtimeBlok);
+				}
+				break
+			;
+			default:
+				this.log(`Unknown blok type ${config!.type!.toLowerCase()}`);
+				break
 			;
 		}
 	}
