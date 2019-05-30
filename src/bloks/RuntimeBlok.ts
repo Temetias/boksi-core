@@ -19,6 +19,10 @@ export default class RuntimeBlok extends Blok {
 	 *
 	 */
 	public async build(): Promise<boolean> {
+		if (!this.config.entryPoint) {
+			this.log(`No entrypoint given for runtime-blok in blok-conf.json for ${this.config.name}!`);
+			return false;
+		}
 		const entryPoint = join(this.dirPath, this.config.entryPoint);
 		const [error, blokInit] = await safely<{ default: () => void }>(import(entryPoint));
 		if (error) {
@@ -32,21 +36,19 @@ export default class RuntimeBlok extends Blok {
 	/**
 	 *
 	 */
-	public launch(): Promise<boolean> {
-		return new Promise<boolean>((resolve) => {
-			if (!this.blokLaunchCallback) {
-				this.log("Attempted to call blok-init without blok-init being assigned thus blok not intialized!");
-				resolve(false);
-			}
-			try {
-				this.log(`Initializing blok "${this.name}"...`);
-				this.blokLaunchCallback();
-				resolve(true);
-			} catch (initError) {
-				this.log("Failed to initialize blok!", initError);
-				resolve(false);
-			}
-		});
+	public launch(): boolean {
+		if (!this.blokLaunchCallback) {
+			this.log("Attempted to call blok-init without blok-init being assigned thus blok not intialized!");
+			return false;
+		}
+		try {
+			this.log(`Initializing blok "${this.name}"...`);
+			this.blokLaunchCallback();
+			return true;
+		} catch (initError) {
+			this.log("Failed to initialize blok!", initError);
+			return false;
+		}
 	}
 
 	/**

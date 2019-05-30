@@ -1,11 +1,18 @@
+import { ChildProcess, fork } from "child_process";
+import { existsSync } from "fs";
+import { join } from "path";
 import { configs } from "../../types/configs/configs";
-import { safely } from "../utils/patterns";
 import Blok from "./Blok";
 
 /**
  *
  */
 export default class IPCBlok extends Blok {
+
+	/**
+	 *
+	 */
+	private process: ChildProcess | null = null;
 
 	/**
 	 *
@@ -18,6 +25,18 @@ export default class IPCBlok extends Blok {
 	 *
 	 */
 	public async build(): Promise<boolean> {
-		return false;
+		if (!this.config.entryPoint) {
+			this.log(`No entrypoint given for runtime-blok in blok-conf.json for ${this.config.name}!`);
+			return false;
+		}
+		return existsSync(join(this.dirPath, this.config.entryPoint));
+	}
+
+	/**
+	 *
+	 */
+	public launch(): boolean {
+		fork(this.config.entryPoint!);
+		return true;
 	}
 }

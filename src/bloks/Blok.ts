@@ -37,10 +37,10 @@ export default abstract class Blok extends LogMember {
 	 *
 	 */
 	public constructor(config: configs.BlokConfig, dirPath: string) {
-		super(config.name);
+		super(config.name!);
 		this.dirPath = dirPath;
 		this.config = config;
-		this.name = config.name;
+		this.name = config.name!;
 	}
 
 	/**
@@ -65,5 +65,5 @@ export default abstract class Blok extends LogMember {
 	/**
 	 *
 	 */
-	protected abstract async launch(): Promise<boolean>;
+	protected abstract launch(): boolean;
 }

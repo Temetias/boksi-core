@@ -8,42 +8,21 @@ export declare namespace configs {
 	 */
 	interface BoksiConfig {
 
-		/**
-		 * 
-		 */
-		coreConfig: BoksiCoreConfig;
-
-		/**
-		 * 
-		 */
-		bloksConfig: BloksHandlerConfig;
-	}
-
-	/**
-	 * 
-	 */
-	interface BoksiCoreConfig {
-
-		/**
-		 * 
-		 */
-		port: number;
-
-		/**
-		 * 
-		 */
-		devPort: number;
-	}
-
-	/**
-	 * 
-	 */
-	interface BloksHandlerConfig {
 
 		/**
 		 * 
 		 */
 		bloksDir?: string;
+
+		/**
+		 * 
+		 */
+		port?: number;
+	
+		/**
+		 * 
+		 */
+		devPort?: number;
 	}
 
 	/**
@@ -54,16 +33,22 @@ export declare namespace configs {
 		/**
 		 * 
 		 */
-		name: string;
+		name?: string;
+
+		/**
+		 *
+		 */
+		type?: "IPC" | "ipc" | "runtime";
+
+		/**
+		 * 
+		 */
+		entryPoint?: string;
 
 		/**
 		 * 
 		 */
 		version?: string;
 
-		/**
-		 * 
-		 */
-		entryPoint: string;
 	}
 }
