@@ -1,5 +1,8 @@
 {
-	"port": 8080,
-	"devPort": 8080,
+	"server": {
+		"enable": false,
+		"port": 8080,
+		"devPort": 8080
+	},
 	"bloksDir": "../blok-examples"
 }

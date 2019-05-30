@@ -9,27 +9,37 @@ import LogMember from "../log/LogMember";
 import { safely } from "../utils/patterns";
 
 /**
+ * The core of Boksi. Contains the main functionality of building, launching and managing bloks, and firing
+ * different lifecycle and action -hooks.
  *
+ * @extends LogMember
  */
 export default class Core extends LogMember {
 
 	/**
+	 * The configuration for Boksi.
 	 *
+	 * @readonly
 	 */
 	private readonly config: configs.BoksiConfig;
 
 	/**
+	 * A container-array for the _enabled_ bloks.
 	 *
+	 * @readonly
 	 */
 	private readonly bloks: Blok[] = [];
 
 	/**
-	 *
+	 * The Boksi hook system.
 	 */
 	private hooks: HookHandler;
 
 	/**
+	 * @constructor
 	 *
+	 * @param config The Boksi configuration.
+	 * @param hookHandler The hook-handling class-instance.
 	 */
 	public constructor(config: configs.BoksiConfig, hookHandler: HookHandler) {
 		super("Core");
@@ -48,21 +58,22 @@ export default class Core extends LogMember {
 				this.hooks.launch.fire();
 			})
 		;
-
 	}
 
 	/**
-	 *
+	 * Gets the directories that have the "__blok"-suffix from the configured blok-folder.
+	 * 
+	 * @returns The absolute paths to the bloks.
 	 */
 	private getBlokDirs(): string[] {
 		if (!this.config.bloksDir) {
 			this.log("No blok-directory set in boksi-conf.json!");
 			return [];
-		} else if (!existsSync(join(__dirname, "../../../", this.config.bloksDir))) { // TODO: Fix path on prod mode.
+		} else if (!existsSync(join(__dirname, "../../../", this.config.bloksDir))) { // TODO: Fix path.
 			this.log("Blok-directory configuration points to a non-existing directory!");
 			return [];
 		} else {
-			const bloksDir = join(__dirname, "../../../", this.config.bloksDir); // TODO: Fix path on prod mode.
+			const bloksDir = join(__dirname, "../../../", this.config.bloksDir); // TODO: Fix path.
 			return readdirSync(bloksDir)
 				.map(name => join(bloksDir, name))
 				.filter(this.isBlokDirectory)
@@ -71,14 +82,24 @@ export default class Core extends LogMember {
 	}
 
 	/**
-	 * 
+	 * Utility function for testing if a directory is a blok-directory or not.
+	 *
+	 * @param dir The absolute path to the tested directory.
+	 *
+	 * @returns The result of the test.
 	 */
 	private isBlokDirectory(dir: string): boolean {
 		return lstatSync(dir).isDirectory() && dir.includes("__blok");
 	}
 
 	/**
+	 * Handles building the blok from the specified configuration and directory.
 	 *
+	 * @param dir The absolute path to the blok-directory.
+	 *
+	 * @returns An empty promise.
+	 *
+	 * @async
 	 */
 	private async buildBlok(dir: string): Promise<void> {
 		const configPath = join(dir, "blok_setup/blok-conf.json");
@@ -93,18 +114,19 @@ export default class Core extends LogMember {
 		}
 		if (!config!.type) {
 			this.log(`No type given for blok in blok-conf.json at ${dir} thus blok not added!`)
+			return;
 		}
 		switch (config!.type!.toLowerCase()) {
 			case "ipc":
 				const ipcBlok = new IPCBlok(config!, dir);
-				if (ipcBlok.build()) {
+				if (await ipcBlok.build()) {
 					this.bloks.push(ipcBlok);
 				}
 				break
 			;
 			case "runtime":
 				const runtimeBlok = new RuntimeBlok(config!, dir);
-				if (runtimeBlok.build()) {
+				if (await runtimeBlok.build()) {
 					this.bloks.push(runtimeBlok);
 				}
 				break
