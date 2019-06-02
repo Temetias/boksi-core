@@ -6,6 +6,7 @@ import IPCBlok from "../bloks/IPCBlok";
 import RuntimeBlok from "../bloks/RuntimeBlok";
 import HookHandler from "../hooks/HookHandler";
 import LogMember from "../log/LogMember";
+import BoksiServer from "../server/BoksiServer";
 import { safely } from "../utils/patterns";
 
 /**
@@ -36,6 +37,11 @@ export default class Core extends LogMember {
 	private hooks: HookHandler;
 
 	/**
+	 * The boksi-ui server
+	 */
+	private readonly uiServer: BoksiServer | null = null;
+
+	/**
 	 * @constructor
 	 *
 	 * @param config The Boksi configuration.
@@ -48,6 +54,14 @@ export default class Core extends LogMember {
 		this.hooks = hookHandler;
 		const blokDirs = this.getBlokDirs();
 		const blokBuildPromises = blokDirs.map(blokDir => this.buildBlok(blokDir));
+		if (config.ui.enable) {
+			if (config.ui.port) {
+				this.uiServer = new BoksiServer(this.hooks, this.config.ui.port!);
+				blokBuildPromises.push(this.buildBlok(join(__dirname, "../../../boksi-ui")));
+			} else {
+				this.log("Boksi-ui couldn't start because there was not a port specified in the config!");
+			}
+		}
 		Promise.all<void>(blokBuildPromises)
 			.catch(buildError => this.log(
 				`One or more of the blok builds failed! There is probably more information above.`,
@@ -55,27 +69,26 @@ export default class Core extends LogMember {
 			))
 			.finally(() => {
 				this.bloks.forEach(blok => blok.enable());
-				this.hooks.launch.fire();
+				this.hooks.native["launch"].fire(new Date().toLocaleString());
 			})
 		;
 	}
 
 	/**
 	 * Gets the directories that have the "__blok"-suffix from the configured blok-folder.
-	 * 
+	 *
 	 * @returns The absolute paths to the bloks.
 	 */
 	private getBlokDirs(): string[] {
 		if (!this.config.bloksDir) {
 			this.log("No blok-directory set in boksi-conf.json!");
 			return [];
-		} else if (!existsSync(join(__dirname, "../../../", this.config.bloksDir))) { // TODO: Fix path.
+		} else if (!existsSync(this.config.bloksDir)) {
 			this.log("Blok-directory configuration points to a non-existing directory!");
 			return [];
 		} else {
-			const bloksDir = join(__dirname, "../../../", this.config.bloksDir); // TODO: Fix path.
-			return readdirSync(bloksDir)
-				.map(name => join(bloksDir, name))
+			return readdirSync(this.config.bloksDir)
+				.map(name => join(this.config.bloksDir!, name))
 				.filter(this.isBlokDirectory)
 			;
 		}
@@ -113,7 +126,7 @@ export default class Core extends LogMember {
 			return;
 		}
 		if (!config!.type) {
-			this.log(`No type given for blok in blok-conf.json at ${dir} thus blok not added!`)
+			this.log(`No type given for blok in blok-conf.json at ${dir} thus blok not added!`);
 			return;
 		}
 		switch (config!.type!.toLowerCase()) {

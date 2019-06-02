@@ -4,5 +4,9 @@
 		"port": 8080,
 		"devPort": 8080
 	},
-	"bloksDir": "../blok-examples"
+	"ui": {
+		"enable": true,
+		"port": 3000
+	},
+	"bloksDir": "C:/Users/teemu.karppinen/rnd/boksi/blok-examples"
 }

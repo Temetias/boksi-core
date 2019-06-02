@@ -1,8 +1,20 @@
+import IPC from "node-ipc";
+
 /**
  * A hook, which is the main structure of the way Boksi communicates with a blok. Hooks can be linked to and unlinked to
  * by the bloks. Core handles triggering the lifecycle-hooks.
  */
 export default class Hook<T> {
+
+	/**
+	 *
+	 */
+	public readonly name: string;
+
+	/**
+	 *
+	 */
+	private IPCCallback: null | ((data: T) => void) = null;
 
 	/**
 	 * A list of the callback-functions that are linked to this hook.
@@ -12,8 +24,8 @@ export default class Hook<T> {
 	/**
 	 * @constructor
 	 */
-	public constructor() {
-		// TODO
+	public constructor(name: string) {
+		this.name = name;
 	}
 
 	/**
@@ -23,6 +35,15 @@ export default class Hook<T> {
 	 */
 	public link(callback: ((data: T) => void)): void {
 		this.callbacks.push(callback);
+	}
+
+	/**
+	 *
+	 */
+	public linkIPCCallback(callback: ((data: T) => void)): void {
+		if (!this.IPCCallback) {
+			this.IPCCallback = callback;
+		}
 	}
 
 	/**
@@ -41,5 +62,15 @@ export default class Hook<T> {
 	 */
 	public fire(data: T): void {
 		this.callbacks.forEach(callback => callback(data));
+		if (this.IPCCallback) {
+			this.IPCCallback(data);
+		}
+	}
+
+	/**
+	 *
+	 */
+	public hasIPCCallback(): boolean {
+		return this.IPCCallback === null;
 	}
 }

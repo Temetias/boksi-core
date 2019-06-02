@@ -34,6 +34,22 @@ export declare namespace configs {
 			 */
 			devPort?: number;
 		}
+
+		/**
+		 * The Boksi web-ui related configuration.
+		 */
+		ui: {
+
+			/**
+			 * If Boksi should start the web-ui.
+			 */
+			enable?: boolean;
+
+			/**
+			 * The port the web-ui runs in.
+			 */
+			port?: number;
+		}
 	}
 
 	/**
