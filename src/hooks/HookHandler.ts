@@ -3,6 +3,7 @@ import { IPC } from "node-ipc";
 import { hookCommunications } from "../../types/hookCommunications";
 import LogMember from "../log/LogMember";
 import Hook from "./Hook";
+import { Socket } from "net";
 
 /**
  * The class-instance that handles the hook-system of Boksi.
@@ -48,17 +49,17 @@ export default class HookHandler extends LogMember {
 		this.IPC.config.silent = true;
 		this.IPC.serve(() => {
 			// Handle hook creation.
-			this.IPC.server.on("boksi-hook-ipc-create", (request: string) => {
+			this.IPC.server.on("boksi-hook-ipc-create", (request: string, socket: Socket) => {
 				this.handleIPCHookCreation(request);
 			});
 			// Handle hook links.
-			this.IPC.server.on("boksi-hook-ipc-link", (request: string) => {
+			this.IPC.server.on("boksi-hook-ipc-link", (request: string, socket: Socket) => {
 				console.log("Link!");
-				this.handleIPCLink(request);
+				this.handleIPCLink(request, socket);
 			});
 			// Handle hook fires.
-			this.IPC.server.on("boksi-hook-ipc-fire", (request: string) => {
-				this.handleIPCFire(request);
+			this.IPC.server.on("boksi-hook-ipc-fire", (request: string, socket: Socket) => {
+				this.handleIPCFire(request, socket);
 			});
 		});
 		this.IPC.server.start();
@@ -81,13 +82,13 @@ export default class HookHandler extends LogMember {
 	/**
 	 *
 	 */
-	private handleIPCLink(request: string): void {
+	private handleIPCLink(request: string, socket: Socket): void {
 		const linkBundle = JSON.parse(request) as hookCommunications.IPCHookLinkMessage;
 		if (this.native[linkBundle.hookName]) {
-			const callback = this.buildIPCCallback();
+			const callback = this.buildIPCCallback(socket);
 			this.native[linkBundle.hookName].linkIPCCallback(callback);
 		} else if (this.custom[linkBundle.hookName]) {
-			const callback = this.buildIPCCallback();
+			const callback = this.buildIPCCallback(socket);
 			this.custom[linkBundle.hookName].linkIPCCallback(callback);
 		} else {
 			this.log(
@@ -101,7 +102,7 @@ export default class HookHandler extends LogMember {
 	/**
 	 *
 	 */
-	private handleIPCFire(request: string): void {
+	private handleIPCFire(request: string, socket: Socket): void {
 		const fireBundle = JSON.parse(request) as hookCommunications.IPCHookMessage;
 		if (this.native[fireBundle.hookName]) {
 			this.native[fireBundle.hookName].fire(fireBundle.data);
@@ -118,10 +119,11 @@ export default class HookHandler extends LogMember {
 	/**
 	 *
 	 */
-	private buildIPCCallback(): (data: any) => void {
+	private buildIPCCallback(socket: Socket): (data: any) => void {
 		return (data: any) => {
+			console.log(JSON.stringify(data, this.getCircularReplacer));
 			const stringifiedData = typeof data === "string" || !data ? data : JSON.stringify(data, this.getCircularReplacer);
-			this.IPC.server.emit("boksi-hook-ipc-fire", stringifiedData);
+			this.IPC.server.emit(socket, "boksi-hook-ipc-fire", stringifiedData);
 		};
 	}
 
