@@ -1,5 +1,4 @@
 import { IncomingMessage } from "http";
-import { Socket } from "net";
 import { IPC } from "node-ipc";
 import { hookCommunications } from "../../types/hookCommunications";
 import LogMember from "../log/LogMember";
@@ -16,12 +15,12 @@ export default class HookHandler extends LogMember {
 	public native: { [name: string]: Hook<any> } = {
 
 		/**
-		 * A hook that triggers when Boksi has launched.
+		 * A hook that fires when Boksi has launched.
 		 */
 		launch: new Hook<void>("launch"),
 
 		/**
-		 * A hook that triggers when Boksi's server receives a request. (If a server is setup).
+		 * A hook that fires when Boksi's server receives a request. (If a server is setup).
 		 *
 		 * @remarks
 		 * To enable Boksi-server, specify that in the boksi-conf.json.
@@ -52,15 +51,17 @@ export default class HookHandler extends LogMember {
 			this.IPC.server.on("boksi-hook-ipc-create", (request: string) => {
 				this.handleIPCHookCreation(request);
 			});
-			// Handle hook registers.
-			this.IPC.server.on("boksi-hook-ipc-register", (request: string) => {
+			// Handle hook links.
+			this.IPC.server.on("boksi-hook-ipc-link", (request: string) => {
+				console.log("Link!");
 				this.handleIPCLink(request);
 			});
-			// Handle hook triggers.
-			this.IPC.server.on("boksi-hook-ipc-trigger", (request: string) => {
-				this.handleIPCTrigger(request);
+			// Handle hook fires.
+			this.IPC.server.on("boksi-hook-ipc-fire", (request: string) => {
+				this.handleIPCFire(request);
 			});
 		});
+		this.IPC.server.start();
 	}
 
 	/**
@@ -81,17 +82,17 @@ export default class HookHandler extends LogMember {
 	 *
 	 */
 	private handleIPCLink(request: string): void {
-		const registrationBundle = JSON.parse(request) as hookCommunications.IPCHookLinkMessage;
-		if (this.native[registrationBundle.hookName]) {
+		const linkBundle = JSON.parse(request) as hookCommunications.IPCHookLinkMessage;
+		if (this.native[linkBundle.hookName]) {
 			const callback = this.buildIPCCallback();
-			this.native[registrationBundle.hookName].linkIPCCallback(callback);
-		} else if (this.custom[registrationBundle.hookName]) {
+			this.native[linkBundle.hookName].linkIPCCallback(callback);
+		} else if (this.custom[linkBundle.hookName]) {
 			const callback = this.buildIPCCallback();
-			this.custom[registrationBundle.hookName].linkIPCCallback(callback);
+			this.custom[linkBundle.hookName].linkIPCCallback(callback);
 		} else {
 			this.log(
-				`Blok "${registrationBundle.blokName}" attempted to register to an unknown
-				hook "${registrationBundle.hookName}"!`,
+				`Blok "${linkBundle.blokName}" attempted to link to an unknown
+				hook "${linkBundle.hookName}"!`,
 			);
 		}
 
@@ -100,16 +101,16 @@ export default class HookHandler extends LogMember {
 	/**
 	 *
 	 */
-	private handleIPCTrigger(request: string): void {
-		const triggerBundle = JSON.parse(request) as hookCommunications.IPCHookMessage;
-		if (this.native[triggerBundle.hookName]) {
-			this.native[triggerBundle.hookName].fire(triggerBundle.data);
-		} else if (this.custom[triggerBundle.hookName]) {
-			this.custom[triggerBundle.hookName].fire(triggerBundle.data);
+	private handleIPCFire(request: string): void {
+		const fireBundle = JSON.parse(request) as hookCommunications.IPCHookMessage;
+		if (this.native[fireBundle.hookName]) {
+			this.native[fireBundle.hookName].fire(fireBundle.data);
+		} else if (this.custom[fireBundle.hookName]) {
+			this.custom[fireBundle.hookName].fire(fireBundle.data);
 		} else {
 			this.log(
-				`Blok "${triggerBundle.blokName}" attempted to trigger an unknown
-				hook "${triggerBundle.hookName}"!`,
+				`Blok "${fireBundle.blokName}" attempted to fire an unknown
+				hook "${fireBundle.hookName}"!`,
 			);
 		}
 	}
@@ -118,10 +119,25 @@ export default class HookHandler extends LogMember {
 	 *
 	 */
 	private buildIPCCallback(): (data: any) => void {
-		const server = this.IPC.server;
 		return (data: any) => {
-			const stringifiedData = typeof data === "string" ? data : JSON.stringify(data);
-			server.emit("boksi-hook-ipc-trigger", stringifiedData);
+			const stringifiedData = typeof data === "string" || !data ? data : JSON.stringify(data, this.getCircularReplacer);
+			this.IPC.server.emit("boksi-hook-ipc-fire", stringifiedData);
+		};
+	}
+
+	/**
+	 *
+	 */
+	private getCircularReplacer(): (key: any, value: any) => any {
+		const seen = new WeakSet();
+		return (key, value) => {
+			if (typeof value === "object" && value !== null) {
+				if (seen.has(value)) {
+					return;
+				}
+				seen.add(value);
+			}
+			return value;
 		};
 	}
 }
