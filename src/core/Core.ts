@@ -42,6 +42,11 @@ export default class Core extends LogMember {
 	private readonly uiServer: BoksiServer | null = null;
 
 	/**
+	 * The boksi server
+	 */
+	private readonly server: BoksiServer | null = null;
+
+	/**
 	 * @constructor
 	 *
 	 * @param config The Boksi configuration.
@@ -54,12 +59,20 @@ export default class Core extends LogMember {
 		this.hooks = hookHandler;
 		const blokDirs = this.getBlokDirs();
 		const blokBuildPromises = blokDirs.map(blokDir => this.buildBlok(blokDir));
-		if (config.ui.enable) {
+		// TODO: Boksi-ui server
+/* 		if (config.ui.enable) {
 			if (config.ui.port) {
 				this.uiServer = new BoksiServer(this.hooks, this.config.ui.port!);
 				blokBuildPromises.push(this.buildBlok(join(__dirname, "../../../boksi-ui")));
 			} else {
 				this.log("Boksi-ui couldn't start because there was not a port specified in the config!");
+			}
+		} */
+		if (config.server.enable) {
+			if (config.server.port) {
+				this.server = new BoksiServer(this.hooks, this.config.server.port!);
+			} else {
+				this.log("Boksi couldn't start the server because there was not a port specified in the config!");
 			}
 		}
 		Promise.all<void>(blokBuildPromises)

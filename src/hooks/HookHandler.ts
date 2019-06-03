@@ -1,4 +1,3 @@
-import circularJSON from "circular-json";
 import { IncomingMessage } from "http";
 import { Socket } from "net";
 import { IPC } from "node-ipc";
@@ -13,7 +12,7 @@ import Hook from "./Hook";
 export default class HookHandler extends LogMember {
 
 	/**
-	 *
+	 * The native constant hooks that Boksi always has.
 	 */
 	public native: { [name: string]: Hook<any> } = {
 
@@ -32,17 +31,17 @@ export default class HookHandler extends LogMember {
 	};
 
 	/**
-	 *
+	 * Custom hooks that can be created by the bloks.
 	 */
 	public readonly custom: { [name: string]: Hook<any> } = {};
 
 	/**
-	 *
+	 * The IPC connection used to message hook-fires to the IPC bloks.
 	 */
 	private readonly IPC = new IPC();
 
 	/**
-	 *
+	 * @constructor
 	 */
 	public constructor() {
 		super("Hook-handler");
@@ -60,14 +59,16 @@ export default class HookHandler extends LogMember {
 			});
 			// Handle hook fires.
 			this.IPC.server.on("boksi-hook-ipc-fire", (request: string, socket: Socket) => {
-				this.handleIPCFire(request, socket);
+				this.handleIPCFire(request);
 			});
 		});
 		this.IPC.server.start();
 	}
 
 	/**
+	 * Handles the creation of a hook via IPC.
 	 *
+	 * @param request A stringified hook-creation message from an IPC blok.
 	 */
 	private handleIPCHookCreation(request: string): void {
 		const creationBundle = JSON.parse(request) as hookCommunications.IPCHookCreationMessage;
@@ -81,7 +82,10 @@ export default class HookHandler extends LogMember {
 	}
 
 	/**
+	 * Handles linking a blok to a hook via IPC.
 	 *
+	 * @param request A stringified hook-linking message from an IPC blok.
+	 * @param socket The IPC socket.
 	 */
 	private handleIPCLink(request: string, socket: Socket): void {
 		const linkBundle = JSON.parse(request) as hookCommunications.IPCHookLinkMessage;
@@ -101,9 +105,11 @@ export default class HookHandler extends LogMember {
 	}
 
 	/**
+	 * Handles a firing request from a IPC blok.
 	 *
+	 * @param request A stringified hook-firing message from a IPC blok.
 	 */
-	private handleIPCFire(request: string, socket: Socket): void {
+	private handleIPCFire(request: string): void {
 		const fireBundle = JSON.parse(request) as hookCommunications.IPCHookMessage;
 		if (this.native[fireBundle.hookName]) {
 			this.native[fireBundle.hookName].fire(fireBundle.data);
@@ -118,7 +124,13 @@ export default class HookHandler extends LogMember {
 	}
 
 	/**
+	 * Builds a callback to link to a hook to enable it triggering via IPC. A hook only needs one IPC callback to be
+	 * visible to all bloks that are linked to it.
 	 *
+	 * @param socket The IPC socket.
+	 * @param hookName The name of the hook to bundle with the IPC message to distinguish the hook fire message.
+	 *
+	 * @returns The functioning IPC hook fire functionality callback.
 	 */
 	private buildIPCCallback(socket: Socket, hookName: string): (data: any) => void {
 		return (data: any) => {

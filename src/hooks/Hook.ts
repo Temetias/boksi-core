@@ -1,4 +1,3 @@
-import IPC from "node-ipc";
 
 /**
  * A hook, which is the main structure of the way Boksi communicates with a blok. Hooks can be linked to and unlinked to
@@ -7,12 +6,12 @@ import IPC from "node-ipc";
 export default class Hook<T> {
 
 	/**
-	 *
+	 * Name of the hook.
 	 */
 	public readonly name: string;
 
 	/**
-	 *
+	 * The IPC callback that handles firing of the hook for the IPC bloks.
 	 */
 	private IPCCallback: null | ((data: T) => void) = null;
 
@@ -38,7 +37,9 @@ export default class Hook<T> {
 	}
 
 	/**
-	 *
+	 * Links an IPC callback for the hook if there is none.
+	 * 
+	 * @param callback The IPC callback to link to the hook.
 	 */
 	public linkIPCCallback(callback: ((data: T) => void)): void {
 		if (!this.IPCCallback) {
@@ -68,7 +69,9 @@ export default class Hook<T> {
 	}
 
 	/**
+	 * Tells if the hook has an IPC callback linked to it or not.
 	 *
+	 * @returns If the hook has IPC callback linked or not.
 	 */
 	public hasIPCCallback(): boolean {
 		return this.IPCCallback === null;
