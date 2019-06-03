@@ -1,9 +1,11 @@
+import circularJSON from "circular-json";
 import { IncomingMessage } from "http";
+import { Socket } from "net";
 import { IPC } from "node-ipc";
+import { inspect } from "util";
 import { hookCommunications } from "../../types/hookCommunications";
 import LogMember from "../log/LogMember";
 import Hook from "./Hook";
-import { Socket } from "net";
 
 /**
  * The class-instance that handles the hook-system of Boksi.
@@ -54,7 +56,6 @@ export default class HookHandler extends LogMember {
 			});
 			// Handle hook links.
 			this.IPC.server.on("boksi-hook-ipc-link", (request: string, socket: Socket) => {
-				console.log("Link!");
 				this.handleIPCLink(request, socket);
 			});
 			// Handle hook fires.
@@ -85,10 +86,10 @@ export default class HookHandler extends LogMember {
 	private handleIPCLink(request: string, socket: Socket): void {
 		const linkBundle = JSON.parse(request) as hookCommunications.IPCHookLinkMessage;
 		if (this.native[linkBundle.hookName]) {
-			const callback = this.buildIPCCallback(socket);
+			const callback = this.buildIPCCallback(socket, linkBundle.hookName);
 			this.native[linkBundle.hookName].linkIPCCallback(callback);
 		} else if (this.custom[linkBundle.hookName]) {
-			const callback = this.buildIPCCallback(socket);
+			const callback = this.buildIPCCallback(socket, linkBundle.hookName);
 			this.custom[linkBundle.hookName].linkIPCCallback(callback);
 		} else {
 			this.log(
@@ -119,27 +120,13 @@ export default class HookHandler extends LogMember {
 	/**
 	 *
 	 */
-	private buildIPCCallback(socket: Socket): (data: any) => void {
+	private buildIPCCallback(socket: Socket, hookName: string): (data: any) => void {
 		return (data: any) => {
-			console.log(JSON.stringify(data, this.getCircularReplacer));
-			const stringifiedData = typeof data === "string" || !data ? data : JSON.stringify(data, this.getCircularReplacer);
+			const stringifiedData = typeof data === "string" || !data
+				? data
+				: JSON.stringify({ hookName, data: inspect(data) })
+			;
 			this.IPC.server.emit(socket, "boksi-hook-ipc-fire", stringifiedData);
-		};
-	}
-
-	/**
-	 *
-	 */
-	private getCircularReplacer(): (key: any, value: any) => any {
-		const seen = new WeakSet();
-		return (key, value) => {
-			if (typeof value === "object" && value !== null) {
-				if (seen.has(value)) {
-					return;
-				}
-				seen.add(value);
-			}
-			return value;
 		};
 	}
 }
