@@ -37,12 +37,16 @@ export default class Core extends LogMember {
 	private hooks: HookHandler;
 
 	/**
-	 * The boksi-ui server
+	 * The boksi-ui server.
+	 * 
+	 * @readonly
 	 */
 	private readonly uiServer: BoksiServer | null = null;
 
 	/**
-	 * The boksi server
+	 * The boksi server.
+	 * 
+	 * @readonly
 	 */
 	private readonly server: BoksiServer | null = null;
 
@@ -82,7 +86,9 @@ export default class Core extends LogMember {
 			))
 			.finally(() => {
 				this.bloks.forEach(blok => blok.enable());
-				this.hooks.native["launch"].fire(new Date().toLocaleString());
+				setTimeout(() => {
+					this.hooks.native["launch"].fire(new Date().toLocaleString());
+				}, 1000);
 			})
 		;
 	}

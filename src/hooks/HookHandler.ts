@@ -134,10 +134,7 @@ export default class HookHandler extends LogMember {
 	 */
 	private buildIPCCallback(socket: Socket, hookName: string): (data: any) => void {
 		return (data: any) => {
-			const stringifiedData = typeof data === "string" || !data
-				? data
-				: JSON.stringify({ hookName, data: inspect(data) })
-			;
+			const stringifiedData = JSON.stringify({ hookName, data: inspect(data) });
 			this.IPC.server.emit(socket, "boksi-hook-ipc-fire", stringifiedData);
 		};
 	}
