@@ -192,13 +192,17 @@ export default class Core extends LogMember {
 			this.server!.terminate();
 			const [err, _] = await safely(Promise.all(this.bloks.map(blok => blok.handleTermination())));
 			if (err) {
-				this.log("Error occured when executing close handlers on bloks!", err);
+				this.log("Error occured when executing termination handlers on bloks!", err);
 				// Fallback to timeout to give bloks some time to attempt close handling.
 				setTimeout(() => {
+					this.log(`Boksi terminated.`);
 					process.exit();
-				}, 5000);
+				}, this.config.terminationPostpone);
+				this.log(`Boksi postponed termination by ${this.config.terminationPostpone}ms.`);
+			} else {
+				this.log(`Boksi terminated.`);
+				process.exit();
 			}
-			process.exit();
 		});
 	}
 }

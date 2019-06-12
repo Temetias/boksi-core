@@ -50,6 +50,11 @@ export declare namespace configs {
 			 */
 			port?: number;
 		}
+
+		/**
+		 * The amount of time (ms) Boksi postpones termination if termination handling procedures throw errors.
+		 */
+		terminationPostpone: number,
 	}
 
 	/**

@@ -8,5 +8,6 @@
 		"enable": true,
 		"port": 3001
 	},
-	"bloksDir": "D:/Git-projects/boksi/blok-examples"
+	"bloksDir": "D:/Git-projects/boksi/blok-examples",
+	"terminationPostpone": 4000
 }
