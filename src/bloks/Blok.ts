@@ -89,6 +89,14 @@ export default abstract class Blok extends LogMember {
 	}
 
 	/**
+	 * Termination handling procedures of the blok. This gets called when the Boksi-core process gets terminated
+	 * via "SIGINT".
+	 *
+	 * @abstract
+	 */
+	public abstract handleTermination(): Promise<void>;
+
+	/**
 	 * The launch function for the blok. Runs the main entry-point funtion or file of the blok.
 	 *
 	 * @returns The success-state for the lauch operation.

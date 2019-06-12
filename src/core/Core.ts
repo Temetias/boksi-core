@@ -1,5 +1,6 @@
 import { existsSync, lstatSync, readdirSync } from "fs";
 import { join } from "path";
+import { createInterface } from "readline";
 import { configs } from "../../types/configs/configs";
 import Blok from "../bloks/Blok";
 import IPCBlok from "../bloks/IPCBlok";
@@ -64,14 +65,14 @@ export default class Core extends LogMember {
 		const blokDirs = this.getBlokDirs();
 		const blokBuildPromises = blokDirs.map(blokDir => this.buildBlok(blokDir));
 		// TODO: Boksi-ui server
-/* 		if (config.ui.enable) {
+		if (config.ui.enable) {
 			if (config.ui.port) {
 				this.uiServer = new BoksiServer(this.hooks, this.config.ui.port!);
 				blokBuildPromises.push(this.buildBlok(join(__dirname, "../../../boksi-ui")));
 			} else {
 				this.log("Boksi-ui couldn't start because there was not a port specified in the config!");
 			}
-		} */
+		}
 		if (config.server.enable) {
 			if (config.server.port) {
 				this.server = new BoksiServer(this.hooks, this.config.server.port!);
@@ -84,6 +85,7 @@ export default class Core extends LogMember {
 				`One or more of the blok builds failed! There is probably more information above.`,
 				buildError,
 			))
+			// TODO: Remove the finally part. This is a test code-block.
 			.finally(() => {
 				this.bloks.forEach(blok => blok.enable());
 				setTimeout(() => {
@@ -91,6 +93,7 @@ export default class Core extends LogMember {
 				}, 1000);
 			})
 		;
+		this.attachTerminationHandler();
 	}
 
 	/**
@@ -168,5 +171,34 @@ export default class Core extends LogMember {
 				break
 			;
 		}
+	}
+
+	/**
+	 * Attaches termination listener to run termination handling on process exit.
+	 */
+	private attachTerminationHandler(): void {
+		// Windows compatibility.
+		if (process.platform === "win32") {
+			const rl = createInterface({
+				input: process.stdin,
+				output: process.stdout,
+			});
+			rl.on("SIGINT", () => {
+				// @ts-ignore - See issue: https://github.com/electron/electron/issues/9626
+				process.emit("SIGINT");
+			});
+		}
+		process.on("SIGINT", async () => {
+			this.server!.terminate();
+			const [err, _] = await safely(Promise.all(this.bloks.map(blok => blok.handleTermination())));
+			if (err) {
+				this.log("Error occured when executing close handlers on bloks!", err);
+				// Fallback to timeout to give bloks some time to attempt close handling.
+				setTimeout(() => {
+					process.exit();
+				}, 5000);
+			}
+			process.exit();
+		});
 	}
 }

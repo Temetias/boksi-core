@@ -54,6 +54,11 @@ export default class RuntimeBlok extends Blok {
 	}
 
 	/**
+	 * {@inheritdoc Blok.handleTermination}
+	 */
+	public async handleTermination(): Promise<void> { /** TODO */ }
+
+	/**
 	 * The runtime-blok launch-function. Boksi expects this to be the default export of the entry-point -file of the blok.
 	 */
 	private blokLaunchCallback: () => void = () => { /* noop */ };

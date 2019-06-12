@@ -25,4 +25,11 @@ export default class BoksiServer {
 			this.hooks.native["request"].fire(req);
 		}).listen(port);
 	}
+
+	/**
+	 *
+	 */
+	public terminate(): void {
+		this.server.close();
+	}
 }

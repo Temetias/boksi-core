@@ -50,4 +50,13 @@ export default class IPCBlok extends Blok {
 			return false;
 		}
 	}
+
+	/**
+	 * {@inheritdoc Blok.handleTermination}
+	 */
+	public async handleTermination(): Promise<void> {
+		if (this.process) {
+			this.process.kill();
+		}
+	}
 }
