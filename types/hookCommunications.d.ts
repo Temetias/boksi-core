@@ -9,7 +9,12 @@ export declare namespace hookCommunications {
 	/**
 	 * The basic IPC hook message that fires a hook.
 	 */
-	interface IPCHookMessage {
+	interface IPCFireHookMessage {
+
+		/**
+		 * Helper property, used to determine the message types.
+		 */
+		isFireMessage: true;
 
 		/**
 		 * The hook to fire.
@@ -33,6 +38,11 @@ export declare namespace hookCommunications {
 	interface IPCHookLinkMessage {
 
 		/**
+		 * Helper property, used to determine the message types.
+		 */
+		isLinkMessage: true;
+
+		/**
 		 * The name of the hook to link into.
 		 */
 		hookName: string;
@@ -49,8 +59,35 @@ export declare namespace hookCommunications {
 	interface IPCHookCreationMessage {
 
 		/**
+		 * Helper property, used to determine the message types.
+		 */
+		isCreationMessage: true;
+
+		/**
 		 * The hook to create.
 		 */
 		hookName: string;
+	}
+
+	/**
+	 *
+	 */
+	interface IPCSuccessMessage {
+
+		/**
+		 * Helper property, used to determine the message types.
+		 */
+		isSuccessMessage: true
+	}
+
+	/**
+	 *
+	 */
+	interface IPCFailureMessage {
+
+		/**
+		 * Helper property, used to determine the message types.
+		 */
+		isFailureMessage: true
 	}
 }

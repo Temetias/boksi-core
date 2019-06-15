@@ -35,18 +35,18 @@ export default class Core extends LogMember {
 	/**
 	 * The Boksi hook system.
 	 */
-	private hooks: HookHandler;
+	private hookHandler: HookHandler;
 
 	/**
 	 * The boksi-ui server.
-	 * 
+	 *
 	 * @readonly
 	 */
 	private readonly uiServer: BoksiServer | null = null;
 
 	/**
 	 * The boksi server.
-	 * 
+	 *
 	 * @readonly
 	 */
 	private readonly server: BoksiServer | null = null;
@@ -61,13 +61,13 @@ export default class Core extends LogMember {
 		super("Core");
 		this.log("Initializing core...");
 		this.config = config;
-		this.hooks = hookHandler;
+		this.hookHandler = hookHandler;
 		const blokDirs = this.getBlokDirs();
 		const blokBuildPromises = blokDirs.map(blokDir => this.buildBlok(blokDir));
 		// TODO: Boksi-ui server
 		if (config.ui.enable) {
 			if (config.ui.port) {
-				this.uiServer = new BoksiServer(this.hooks, this.config.ui.port!);
+				this.uiServer = new BoksiServer(this.hookHandler, this.config.ui.port!);
 				blokBuildPromises.push(this.buildBlok(join(__dirname, "../../../boksi-ui")));
 			} else {
 				this.log("Boksi-ui couldn't start because there was not a port specified in the config!");
@@ -75,7 +75,7 @@ export default class Core extends LogMember {
 		}
 		if (config.server.enable) {
 			if (config.server.port) {
-				this.server = new BoksiServer(this.hooks, this.config.server.port!);
+				this.server = new BoksiServer(this.hookHandler, this.config.server.port!);
 			} else {
 				this.log("Boksi couldn't start the server because there was not a port specified in the config!");
 			}
@@ -89,7 +89,7 @@ export default class Core extends LogMember {
 			.finally(() => {
 				this.bloks.forEach(blok => blok.enable());
 				setTimeout(() => {
-					this.hooks.native["launch"].fire(new Date().toLocaleString());
+					this.hookHandler.native["launch"].fire(new Date().toLocaleString());
 				}, 1000);
 			})
 		;
@@ -153,14 +153,14 @@ export default class Core extends LogMember {
 		}
 		switch (config!.type!.toLowerCase()) {
 			case "ipc":
-				const ipcBlok = new IPCBlok(config!, dir);
+				const ipcBlok = new IPCBlok(config!, dir, this.hookHandler);
 				if (await ipcBlok.build()) {
 					this.bloks.push(ipcBlok);
 				}
 				break
 			;
 			case "runtime":
-				const runtimeBlok = new RuntimeBlok(config!, dir);
+				const runtimeBlok = new RuntimeBlok(config!, dir, this.hookHandler);
 				if (await runtimeBlok.build()) {
 					this.bloks.push(runtimeBlok);
 				}
@@ -190,9 +190,11 @@ export default class Core extends LogMember {
 		}
 		process.on("SIGINT", async () => {
 			this.server!.terminate();
-			const [err, _] = await safely(Promise.all(this.bloks.map(blok => blok.handleTermination())));
-			if (err) {
-				this.log("Error occured when executing termination handlers on bloks!", err);
+			const [error1, __] = await safely(this.hookHandler.native["termination"].fire({}));
+			const [error2, ____] = await safely(Promise.all(this.bloks.map(blok => blok.handleTermination())));
+			if (error1 || error2) {
+				const error = error1 ? error1 : error2!;
+				this.log("Error occured when executing termination handlers on bloks!", error);
 				// Fallback to timeout to give bloks some time to attempt close handling.
 				setTimeout(() => {
 					this.log(`Boksi terminated.`);

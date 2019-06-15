@@ -1,10 +1,7 @@
 import { IncomingMessage } from "http";
-import { Socket } from "net";
-import { IPC } from "node-ipc";
-import { inspect } from "util";
-import { hookCommunications } from "../../types/hookCommunications";
 import LogMember from "../log/LogMember";
 import Hook from "./Hook";
+import Link from "./Link";
 
 /**
  * The class-instance that handles the hook-system of Boksi.
@@ -28,6 +25,11 @@ export default class HookHandler extends LogMember {
 		 * To enable Boksi-server, specify that in the boksi-conf.json.
 		 */
 		request: new Hook<IncomingMessage>("request"),
+
+		/**
+		 *
+		 */
+		termination: new Hook<void>("termination"),
 	};
 
 	/**
@@ -36,106 +38,53 @@ export default class HookHandler extends LogMember {
 	public readonly custom: { [name: string]: Hook<any> } = {};
 
 	/**
-	 * The IPC connection used to message hook-fires to the IPC bloks.
-	 */
-	private readonly IPC = new IPC();
-
-	/**
 	 * @constructor
 	 */
 	public constructor() {
-		super("Hook-handler");
-		this.IPC.config.id = "boksi-hook-ipc";
-		this.IPC.config.retry = 1500;
-		this.IPC.config.silent = true;
-		this.IPC.serve(() => {
-			// Handle hook creation.
-			this.IPC.server.on("boksi-hook-ipc-create", (request: string, socket: Socket) => {
-				this.handleIPCHookCreation(request);
-			});
-			// Handle hook links.
-			this.IPC.server.on("boksi-hook-ipc-link", (request: string, socket: Socket) => {
-				this.handleIPCLink(request, socket);
-			});
-			// Handle hook fires.
-			this.IPC.server.on("boksi-hook-ipc-fire", (request: string, socket: Socket) => {
-				this.handleIPCFire(request);
-			});
-		});
-		this.IPC.server.start();
+		super("hook-handler");
 	}
 
 	/**
-	 * Handles the creation of a hook via IPC.
 	 *
-	 * @param request A stringified hook-creation message from an IPC blok.
 	 */
-	private handleIPCHookCreation(request: string): void {
-		const creationBundle = JSON.parse(request) as hookCommunications.IPCHookCreationMessage;
-		if (!this.custom[creationBundle.hookName]) {
-			this.custom[creationBundle.hookName] = new Hook<any>(creationBundle.hookName);
+	public getHookByName(name: string): Hook<any> | null {
+		if (this.native[name]) {
+			return this.native[name];
+		} else if (this.custom[name]) {
+			return this.custom[name];
 		} else {
-			this.log(
-				`A blok attempted to re-create an already assigned hook "${creationBundle.hookName}"!`,
-			);
+			this.log("Received a request to get an unknown hook!");
+			return null;
 		}
 	}
 
 	/**
-	 * Handles linking a blok to a hook via IPC.
 	 *
-	 * @param request A stringified hook-linking message from an IPC blok.
-	 * @param socket The IPC socket.
+	 * @param hookName
 	 */
-	private handleIPCLink(request: string, socket: Socket): void {
-		const linkBundle = JSON.parse(request) as hookCommunications.IPCHookLinkMessage;
-		if (this.native[linkBundle.hookName]) {
-			const callback = this.buildIPCCallback(socket, linkBundle.hookName);
-			this.native[linkBundle.hookName].linkIPCCallback(callback);
-		} else if (this.custom[linkBundle.hookName]) {
-			const callback = this.buildIPCCallback(socket, linkBundle.hookName);
-			this.custom[linkBundle.hookName].linkIPCCallback(callback);
-		} else {
-			this.log(
-				`Blok "${linkBundle.blokName}" attempted to link to an unknown
-				hook "${linkBundle.hookName}"!`,
-			);
+	public createCustomHook<T>(hookName: string): boolean {
+		if (Object.keys(this.native).includes(hookName)) {
+			this.log(`Attempted to create a hook by name "${hookName}" which name is reserved to a native hook!`);
+			return false;
 		}
-
+		if (this.custom[hookName]) {
+			this.log(`Attempted to create an already declared hook "${hookName}"!`);
+			return false;
+		}
+		this.custom[hookName] = new Hook<T>(hookName);
+		return true;
 	}
 
 	/**
-	 * Handles a firing request from a IPC blok.
 	 *
-	 * @param request A stringified hook-firing message from a IPC blok.
 	 */
-	private handleIPCFire(request: string): void {
-		const fireBundle = JSON.parse(request) as hookCommunications.IPCHookMessage;
-		if (this.native[fireBundle.hookName]) {
-			this.native[fireBundle.hookName].fire(fireBundle.data);
-		} else if (this.custom[fireBundle.hookName]) {
-			this.custom[fireBundle.hookName].fire(fireBundle.data);
+	public linkToHookByName(hookName: string, link: Link): void {
+		if (this.native[hookName]) {
+			this.native[hookName].handleLink(link);
+		} else if (this.custom[hookName]) {
+			this.custom[hookName].handleLink(link);
 		} else {
-			this.log(
-				`Blok "${fireBundle.blokName}" attempted to fire an unknown
-				hook "${fireBundle.hookName}"!`,
-			);
+			this.log(`Attempted to link to an unknown hook "${hookName}"!`);
 		}
-	}
-
-	/**
-	 * Builds a callback to link to a hook to enable it triggering via IPC. A hook only needs one IPC callback to be
-	 * visible to all bloks that are linked to it.
-	 *
-	 * @param socket The IPC socket.
-	 * @param hookName The name of the hook to bundle with the IPC message to distinguish the hook fire message.
-	 *
-	 * @returns The functioning IPC hook fire functionality callback.
-	 */
-	private buildIPCCallback(socket: Socket, hookName: string): (data: any) => void {
-		return (data: any) => {
-			const stringifiedData = JSON.stringify({ hookName, data: inspect(data) });
-			this.IPC.server.emit(socket, "boksi-hook-ipc-fire", stringifiedData);
-		};
 	}
 }

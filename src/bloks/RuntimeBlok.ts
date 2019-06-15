@@ -1,5 +1,6 @@
 import { join } from "path";
 import { configs } from "../../types/configs/configs";
+import HookHandler from "../hooks/HookHandler";
 import { safely } from "../utils/patterns";
 import Blok from "./Blok";
 
@@ -13,8 +14,8 @@ export default class RuntimeBlok extends Blok {
 	/**
 	 * {@inheritdoc Blok.constructor}
 	 */
-	public constructor(config: configs.BlokConfig, dirPath: string) {
-		super(config, dirPath);
+	public constructor(config: configs.BlokConfig, dirPath: string, hookHandler: HookHandler) {
+		super(config, dirPath, hookHandler);
 	}
 
 	/**

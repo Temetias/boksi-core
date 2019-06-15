@@ -1,4 +1,5 @@
 import { configs } from "../../types/configs/configs";
+import HookHandler from "../hooks/HookHandler";
 import LogMember from "../log/LogMember";
 
 /**
@@ -16,25 +17,11 @@ export default abstract class Blok extends LogMember {
 	public name: string;
 
 	/**
-	 * The absolute directory path of the blok.
-	 *
-	 * @readonly
-	 */
-	public readonly dirPath: string;
-
-	/**
 	 * The type of the blok. The type determines the way the blok communicates with Boksi.
 	 *
 	 * @readonly
 	 */
 	public readonly type: string;
-
-	/**
-	 * The configuration-data of the blok. Usually from {blokname__blok}/blok_setup/blok-conf.json.
-	 *
-	 * @readonly
-	 */
-	protected readonly config: configs.BlokConfig;
 
 	/**
 	 * The blok enabled-state. Prefixed to limit direct access.
@@ -54,10 +41,28 @@ export default abstract class Blok extends LogMember {
 	 * @param config The configuration for the blok.
 	 * @param dirPath The absolute directory path for the blok.
 	 */
-	public constructor(config: configs.BlokConfig, dirPath: string) {
+	public constructor(
+
+		/**
+		 * The configuration-data of the blok. Usually from {blokname__blok}/blok_setup/blok-conf.json.
+		 *
+		 * @readonly
+		 */
+		protected readonly config: configs.BlokConfig,
+
+		/**
+		 * The absolute directory path of the blok.
+		 *
+		 * @readonly
+		 */
+		public readonly dirPath: string,
+
+		/**
+		 *
+		 */
+		protected readonly hookHandler: HookHandler,
+	) {
 		super(config.name!);
-		this.dirPath = dirPath;
-		this.config = config;
 		this.name = config.name!;
 		this.type = config.type!;
 	}
