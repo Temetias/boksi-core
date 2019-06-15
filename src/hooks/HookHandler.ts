@@ -10,6 +10,8 @@ export default class HookHandler extends LogMember {
 
 	/**
 	 * The native constant hooks that Boksi always has.
+	 *
+	 * TODO: Improve typings.
 	 */
 	public native: { [name: string]: Hook<any> } = {
 
@@ -27,7 +29,7 @@ export default class HookHandler extends LogMember {
 		request: new Hook<IncomingMessage>("request"),
 
 		/**
-		 *
+		 * A hook thath fires when boksi is getting terminated.
 		 */
 		termination: new Hook<void>("termination"),
 	};
@@ -45,7 +47,11 @@ export default class HookHandler extends LogMember {
 	}
 
 	/**
+	 * Returns a hook by name if one exists. Otherwice returns null.
 	 *
+	 * @param name The name of the hook
+	 *
+	 * @returns The hook matching to the name or null if none was found.
 	 */
 	public getHookByName(name: string): Hook<any> | null {
 		if (this.native[name]) {
@@ -59,8 +65,11 @@ export default class HookHandler extends LogMember {
 	}
 
 	/**
+	 * Creates a new hook.
 	 *
-	 * @param hookName
+	 * @param hookName The name of the hook to create.
+	 *
+	 * @returns A succes state of the creation process.
 	 */
 	public createCustomHook<T>(hookName: string): boolean {
 		if (Object.keys(this.native).includes(hookName)) {
@@ -76,7 +85,9 @@ export default class HookHandler extends LogMember {
 	}
 
 	/**
+	 * Link to a hook by name.
 	 *
+	 * @param name The hook name.
 	 */
 	public linkToHookByName(hookName: string, link: Link): void {
 		if (this.native[hookName]) {

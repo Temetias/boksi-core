@@ -6,14 +6,14 @@ import { configs } from "../../types/configs/configs";
 import { hookCommunications } from "../../types/hookCommunications";
 import HookHandler from "../hooks/HookHandler";
 import Link from "../hooks/Link";
-import { isInstanceOfInterface, safely } from "../utils/patterns";
+import { isInstanceOfInterface } from "../utils/patterns";
 import Blok from "./Blok";
 
 /**
  * IPC-blok is a blok that communicates with Boksi via IPC.
  *
  * @remarks
- * IPC-blok relies on {@link https://www.npmjs.com/package/node-ipc | the node-ipc -package}
+ * This is possible by relying on  {@link https://nodejs.org/api/child_process.html | Child Process}
  *
  * @extends Blok
  */
@@ -25,7 +25,10 @@ export default class IPCBlok extends Blok {
 	private process: ChildProcess | null = null;
 
 	/**
+	 * If the blok communication is due to a return value we store the reject and resolve on the class itself.
+	 * This way we are able to keep listening to other events while waiting for a return value from a hook-fire.
 	 *
+	 * TODO: Implement que-system for multiple pending values.
 	 */
 	private firePromiseResults: {
 		reject: ((value?: void | PromiseLike<void> | undefined) => void) | null,
@@ -78,7 +81,9 @@ export default class IPCBlok extends Blok {
 	}
 
 	/**
+	 * Starts listening to the child process.
 	 *
+	 * @param process The child process.
 	 */
 	private startProcessListener(process: ChildProcess): void {
 		process.on("message", message => {
@@ -112,7 +117,13 @@ export default class IPCBlok extends Blok {
 	}
 
 	/**
+	 * Generates a callback function which gets linked to the hook. The callback function resolve and reject operators
+	 * are stored on the class scope so that the message listener can handle them.
 	 *
+	 * @param process The child process.
+	 * @param hookName The name of the hook we are building the link callback for.
+	 *
+	 * @returns A function that returns a Promise which gets called on hook-fire.
 	 */
 	private generateCallbackForLink<T>(process: ChildProcess, hookName: string): (data: T) => Promise<void> {
 		const blokName = this.name;

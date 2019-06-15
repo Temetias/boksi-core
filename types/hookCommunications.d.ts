@@ -70,7 +70,7 @@ export declare namespace hookCommunications {
 	}
 
 	/**
-	 *
+	 * A message that indicates a succesful reaction to a hook fire.
 	 */
 	interface IPCSuccessMessage {
 
@@ -81,7 +81,7 @@ export declare namespace hookCommunications {
 	}
 
 	/**
-	 *
+	 * A message that indicates a failed reaction to a hook fire.
 	 */
 	interface IPCFailureMessage {
 

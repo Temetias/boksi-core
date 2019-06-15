@@ -3,26 +3,25 @@ import Core from "./core/Core";
 import HookHandler from "./hooks/HookHandler";
 
 /**
- * Boksi is a backend-solution for building modular cross-process application with an aim for high uptime.
+ * Boksi is a backend-solution for building an agile and modular cross-process application.
  *
  * @packageDocumentation
  */
 
 /**
- * The root Boksi-instance that gets exposed to runtime-bloks via nodejs global -object.
+ * The root Boksi-instance that gets exposed to runtime-bloks via NodeJS.global.
  */
 class Boksi {
 
 	/**
-	 * Boksi's hook system which exposes multiple triggers in which the bloks can attach to to trigger different actions.
+	 * Boksis hook system which exposes multiple triggers in which the bloks can attach to to trigger different actions.
 	 */
 	public hooks = new HookHandler();
 
 	/**
-	 * The core functionality handler of Boksi.
+	 * The core functionality of Boksi.
 	 */
 	private core = new Core(config, this.hooks);
-
 }
 
 // @ts-ignore

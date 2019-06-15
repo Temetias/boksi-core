@@ -58,7 +58,9 @@ export default abstract class Blok extends LogMember {
 		public readonly dirPath: string,
 
 		/**
+		 * Reference to the Boksis hook-system.
 		 *
+		 * @readonly
 		 */
 		protected readonly hookHandler: HookHandler,
 	) {
@@ -102,9 +104,9 @@ export default abstract class Blok extends LogMember {
 	public abstract handleTermination(): Promise<void>;
 
 	/**
-	 * The launch function for the blok. Runs the main entry-point funtion or file of the blok.
+	 * The launch function for the blok. Runs the main entry-point funtion or forks the file of the blok.
 	 *
-	 * @returns The success-state for the lauch operation.
+	 * @returns The success-state for the launch operation.
 	 *
 	 * @abstract
 	 */

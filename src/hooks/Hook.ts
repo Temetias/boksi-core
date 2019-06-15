@@ -8,21 +8,20 @@ import Link from "./Link";
 export default class Hook<T> {
 
 	/**
-	 * Name of the hook.
-	 */
-	public readonly name: string;
-
-	/**
-	 *
+	 * The links to this hook.
 	 */
 	public links: Link<T>[] = [];
 
 	/**
 	 * @constructor
 	 */
-	public constructor(name: string) {
-		this.name = name;
-	}
+	public constructor(
+
+		/**
+		 * Name of the hook.
+		 */
+		public readonly name: string,
+	) {}
 
 	/**
 	 * Link a callback-function to the hook.
@@ -36,7 +35,7 @@ export default class Hook<T> {
 	/**
 	 * Unlink a callback function from the hook.
 	 *
-	 * @param callback The callback-function to link to the hook.
+	 * @param callback The callback-function to unlink from the hook.
 	 */
 	public unlink(link: Link<T>): void {
 		this.links = this.links.filter(linkedLink => linkedLink.id !== link.id);
@@ -45,7 +44,11 @@ export default class Hook<T> {
 	/**
 	 * Fires the hook, calling all the callbacks linked to it.
 	 *
+	 * TODO: Research possibilities for "fireSafe" and "fireUnsafe".
+	 *
 	 * @param data The data to pass down to the callbacks.
+	 *
+	 * @returns An empty promise
 	 */
 	public async fire(data: T): Promise<void> {
 		const [error, _] = await safely(Promise.all(this.links.map(link => link.callBack(data))));

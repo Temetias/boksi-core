@@ -19,13 +19,6 @@ import { safely } from "../utils/patterns";
 export default class Core extends LogMember {
 
 	/**
-	 * The configuration for Boksi.
-	 *
-	 * @readonly
-	 */
-	private readonly config: configs.BoksiConfig;
-
-	/**
 	 * A container-array for the _enabled_ bloks.
 	 *
 	 * @readonly
@@ -33,12 +26,8 @@ export default class Core extends LogMember {
 	private readonly bloks: Blok[] = [];
 
 	/**
-	 * The Boksi hook system.
-	 */
-	private hookHandler: HookHandler;
-
-	/**
 	 * The boksi-ui server.
+	 * TODO
 	 *
 	 * @readonly
 	 */
@@ -46,6 +35,7 @@ export default class Core extends LogMember {
 
 	/**
 	 * The boksi server.
+	 * TODO
 	 *
 	 * @readonly
 	 */
@@ -53,18 +43,25 @@ export default class Core extends LogMember {
 
 	/**
 	 * @constructor
-	 *
-	 * @param config The Boksi configuration.
-	 * @param hookHandler The hook-handling class-instance.
 	 */
-	public constructor(config: configs.BoksiConfig, hookHandler: HookHandler) {
+	public constructor(
+
+		/**
+		 * The configuration for Boksi.
+		 *
+		 * @readonly
+		 */
+		private readonly config: configs.BoksiConfig,
+
+		/**
+		 * The Boksi hook system.
+		 */
+		private hookHandler: HookHandler,
+	) {
 		super("Core");
 		this.log("Initializing core...");
-		this.config = config;
-		this.hookHandler = hookHandler;
 		const blokDirs = this.getBlokDirs();
 		const blokBuildPromises = blokDirs.map(blokDir => this.buildBlok(blokDir));
-		// TODO: Boksi-ui server
 		if (config.ui.enable) {
 			if (config.ui.port) {
 				this.uiServer = new BoksiServer(this.hookHandler, this.config.ui.port!);
@@ -85,7 +82,7 @@ export default class Core extends LogMember {
 				`One or more of the blok builds failed! There is probably more information above.`,
 				buildError,
 			))
-			// TODO: Remove the finally part. This is a test code-block.
+			// TODO: Remove. This is a test code-block. Bloks will be enabled/disabled from the UI or CLI in the future.
 			.finally(() => {
 				this.bloks.forEach(blok => blok.enable());
 				setTimeout(() => {
@@ -190,6 +187,7 @@ export default class Core extends LogMember {
 		}
 		process.on("SIGINT", async () => {
 			this.server!.terminate();
+			this.uiServer!.terminate();
 			const [error1, __] = await safely(this.hookHandler.native["termination"].fire({}));
 			const [error2, ____] = await safely(Promise.all(this.bloks.map(blok => blok.handleTermination())));
 			if (error1 || error2) {
