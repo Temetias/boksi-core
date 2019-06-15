@@ -8,3 +8,11 @@ export const safely = async <T>(promise: Promise<T>): Promise<[Error, null] | [n
 		return [error, null]
 	}
 };
+
+/**
+ * Generic type-guard implementation for interfaces.
+ */
+export const isInstanceOfInterface = <T>(
+	object: any,
+	uniqueProperty: keyof T,
+): object is T => uniqueProperty in object;
