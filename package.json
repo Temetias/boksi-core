@@ -4,7 +4,7 @@
 	"description": "Core functionality for boksi",
 	"main": "build/src/Boksi.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
+		"test": "mocha -r ts-node/register test/**/*.spec.ts",
 		"tsc": "tsc",
 		"dev": "ts-node-dev --respawn --transpileOnly ./src/Boksi.ts",
 		"prod": "tsc && node ./build/src/Boksi.js"
@@ -17,8 +17,13 @@
 		"typescript": "^3.4.5"
 	},
 	"devDependencies": {
+		"@types/chai": "^4.1.7",
+		"@types/mocha": "^5.2.7",
 		"@types/node": "^12.0.2",
 		"@types/node-ipc": "^9.1.1",
+		"chai": "^4.2.0",
+		"mocha": "^6.1.4",
+		"ts-node": "^8.3.0",
 		"tslint": "^5.16.0"
 	}
 }
