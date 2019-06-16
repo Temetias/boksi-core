@@ -1,0 +1,14 @@
+{
+	"server": {
+		"enable": true,
+		"port": 8080,
+		"devPort": 8080
+	},
+	"ui": {
+		"enable": true,
+		"port": 3001
+	},
+	"bloksDir": "/fixtures/test-bloks",
+	"terminationPostpone": 4000,
+	"logDir": "/tmp"
+}

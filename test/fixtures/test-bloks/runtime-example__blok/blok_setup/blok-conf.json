@@ -1,0 +1,5 @@
+{
+	"name": "runtime-example",
+	"type": "runtime",
+	"entryPoint": "build/app/app.js"
+}

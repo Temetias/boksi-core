@@ -1,5 +1,0 @@
-{
-    "name": "IPC Blok",
-    "type": "ipc",
-    "entryPoint": "build/app/app.js"
-}

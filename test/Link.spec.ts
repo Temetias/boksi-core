@@ -10,14 +10,6 @@ chai.use(chaiAsPromised);
 describe("Link", () => {
 	const link = new Link(timeout);
 
-	it("should have an id", () => {
-		expect(link).to.haveOwnProperty("id");
-	});
-
-	it("should have an id which is a string", () => {
-		expect(link.id).to.be.a("string");
-	});
-
 	it("should have an id of which length is 32", () => {
 		expect(link.id).to.have.lengthOf(32);
 	});

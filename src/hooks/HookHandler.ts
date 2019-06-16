@@ -87,9 +87,11 @@ export default class HookHandler extends LogMember {
 	/**
 	 * Link to a hook by name.
 	 *
+	 * TODO: Figure out how to implement link typings properly.
+	 *
 	 * @param name The hook name.
 	 */
-	public linkToHookByName(hookName: string, link: Link): void {
+	public linkToHookByName(hookName: string, link: Link<any>): void {
 		if (this.native[hookName]) {
 			this.native[hookName].handleLink(link);
 		} else if (this.custom[hookName]) {
