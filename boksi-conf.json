@@ -1,0 +1,13 @@
+{
+	"server": {
+		"enable": true,
+		"port": 8080,
+		"devPort": 8080
+	},
+	"ui": {
+		"enable": true,
+		"port": 3001
+	},
+	"bloksDir": "D:/Git-projects/boksi/blok-examples",
+	"terminationPostpone": 4000
+}
