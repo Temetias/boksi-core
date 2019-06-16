@@ -9,5 +9,6 @@
 		"port": 3001
 	},
 	"bloksDir": "D:/Git-projects/boksi/blok-examples",
-	"terminationPostpone": 4000
+	"terminationPostpone": 4000,
+	"logDir": "D:/Git-projects/boksi/logs"
 }

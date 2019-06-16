@@ -9,7 +9,7 @@ export declare namespace configs {
 	interface BoksiConfig {
 
 		/**
-		 * The directory where Boksi looks for bloks.
+		 * The absolute path of the directory where Boksi looks for bloks.
 		 */
 		bloksDir?: string;
 
@@ -55,6 +55,11 @@ export declare namespace configs {
 		 * The amount of time (ms) Boksi postpones termination if termination handling procedures throw errors.
 		 */
 		terminationPostpone: number,
+
+		/**
+		 * The absolute path for the directory boksi stores the logging information in.
+		 */
+		logDir: string;
 	}
 
 	/**

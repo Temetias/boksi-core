@@ -6,7 +6,7 @@
 	"scripts": {
 		"test": "mocha -r ts-node/register test/**/*.spec.ts",
 		"tsc": "tsc",
-		"dev": "ts-node-dev --respawn --transpileOnly ./src/Boksi.ts",
+		"dev": "ts-node-dev ./src/Boksi.ts",
 		"prod": "tsc && node ./build/src/Boksi.js"
 	},
 	"author": "Teemu Karppinen",

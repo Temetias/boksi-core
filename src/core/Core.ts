@@ -188,8 +188,8 @@ export default class Core extends LogMember {
 		process.on("SIGINT", async () => {
 			this.server!.terminate();
 			this.uiServer!.terminate();
-			const [error1, __] = await safely(this.hookHandler.native["termination"].fire({}));
-			const [error2, ____] = await safely(Promise.all(this.bloks.map(blok => blok.handleTermination())));
+			const [error1, _] = await safely(this.hookHandler.native["termination"].fire({}));
+			const [error2, __] = await safely(Promise.all(this.bloks.map(blok => blok.handleTermination())));
 			if (error1 || error2) {
 				const error = error1 ? error1 : error2!;
 				this.log("Error occured when executing termination handlers on bloks!", error);

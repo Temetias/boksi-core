@@ -1,3 +1,6 @@
+import fs from "fs";
+import boksiConfig from "../../boksi-conf.json";
+
 /**
  * A class representation of a member in the Boksi logging system. Used to unify the logging procedure.
  *
@@ -6,31 +9,73 @@
 export default abstract class LogMember {
 
 	/**
-	 * The source from which the loggin message will be marked to come from.
+	 * If the logmember is able to log to the file.
 	 *
 	 * @readonly
 	 */
-	private readonly source: string;
+	private readonly isAbleToLogToFile: boolean;
 
 	/**
 	 * @constructor
 	 *
 	 * @param source The source from which the loggin message will be marked to come from.
 	 */
-	public constructor(source: string) {
-		this.source = source;
-		// TODO: Init logging file.
+	public constructor(
+
+		/**
+		 * The source from which the loggin message will be marked to come from.
+		 *
+		 * @readonly
+		 */
+		private readonly source: string,
+	) {
+		this.isAbleToLogToFile = this.initDirectory();
 	}
 
 	/**
-	 * Mark something into the log.
+	 * Mark something into the log. If there is no file for today, create one. If on development mode,
+	 * also log to console.
 	 *
 	 * @param message The message to mark into the log.
 	 * @param error Optional. The error to relate with the message.
 	 */
 	public log(message: string, error?: Error | string): void {
-		// TODO: Log to file.
-		console.log(`${new Date().toLocaleString()}`, `- from ${this.source}:`);
-		console.log(message, error ? `Trace below:\n---\n${error}\n----` : "", "\n");
+		const title = `${new Date().toLocaleString()} - from ${this.source}:`;
+		const formattedMessage = `${message} ${error ? "Trace below:\n----\n" + error + "\n----" : ""}\n`;
+		const file = `${boksiConfig.logDir}/${new Date().toLocaleDateString()}.txt`;
+		if (process.env.NODE_ENV === "development") {
+			console.log(title);
+			console.log(formattedMessage);
+		}
+		if (!this.isAbleToLogToFile) {
+			return;
+		}
+		if (!fs.existsSync(file)) {
+			fs.writeFileSync(
+				file,
+				`\n${title}\n${formattedMessage}`,
+			);
+		} else {
+			fs.appendFileSync(
+				file,
+				`\n${title}\n${formattedMessage}`,
+			);
+		}
+	}
+
+	/**
+	 * Checks if the logging directory exists. If not, creates one.
+	 *
+	 * @returns The success state of the operation.
+	 */
+	private initDirectory(): boolean {
+		if (!boksiConfig.logDir) {
+			console.error("No logging directory specified in boksi-conf.json!");
+			return false;
+		}
+		if (!fs.existsSync(boksiConfig.logDir)) {
+			fs.mkdirSync(boksiConfig.logDir);
+		}
+		return true;
 	}
 }
