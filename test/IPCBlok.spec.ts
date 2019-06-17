@@ -12,7 +12,7 @@ chai.use(chaiAsPromised);
 describe("IPCBlok", () => {
 	const blok = new IPCBlok(
 		config as configs.BlokConfig,
-		"D:/Git-projects/boksi/boksi-core/test/fixtures/IPC-example__blok",
+		"D:/Git-projects/boksi/boksi-core/test/fixtures/test-bloks/IPC-example__blok",
 		new HookHandler(),
 	);
 

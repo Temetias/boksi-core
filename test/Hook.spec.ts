@@ -8,13 +8,18 @@ import { timeout } from "./utils/utils";
 const expect = chai.expect;
 chai.use(chaiAsPromised);
 
+interface ITestBundle {
+	ms: number;
+	forceFail?: boolean;
+}
+
 describe("Hook", () => {
 	const hookName = "Test-Hook";
-	const hook = new Hook<number>(hookName);
+	const hook = new Hook<ITestBundle>(hookName);
 	const links = [
-		new Link<number>(ms => timeout({ ms })),
-		new Link<number>(ms => timeout({ ms })),
-		new Link<number>(ms => timeout({ ms })),
+		new Link<ITestBundle>(bundle => timeout(bundle)),
+		new Link<ITestBundle> (bundle => timeout(bundle)),
+		new Link<ITestBundle>(bundle => timeout(bundle)),
 	];
 
 	it("should have the correct name", () => {
@@ -27,7 +32,11 @@ describe("Hook", () => {
 	});
 
 	it("should be able to fire all of its links", async () => {
-		await expect(hook.fire(100)).to.not.be.rejected;
+		await expect(hook.fire({ ms: 100 })).to.not.be.rejected;
+	});
+
+	it("should throw an error if a link fire fails", async () => {
+		await expect(hook.fire({ ms: 100, forceFail: true })).to.be.rejected;
 	});
 
 	it("should be able to unlink links", () => {

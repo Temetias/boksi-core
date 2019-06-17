@@ -16,9 +16,9 @@ describe("HookHandler", () => {
 		new Link<number>(ms => timeout({ ms })),
 	];
 	const voidLinks = [
-		new Link<void>(async () => await timeout({ ms: 100 })),
-		new Link<void>(async () => await timeout({ ms: 100 })),
-		new Link<void>(async () => await timeout({ ms: 100 })),
+		new Link<void>(() => timeout({ ms: 100 })),
+		new Link<void>(() => timeout({ ms: 100 })),
+		new Link<void>(() => timeout({ ms: 100 })),
 	];
 
 	it("should have created native hooks on creation", async () => {
@@ -31,6 +31,17 @@ describe("HookHandler", () => {
 		await expect(hookHandler.custom["test-hook"].fire({})).to.not.be.rejected;
 	});
 
+	it("should not allow to override or break an already created hook", async () => {
+		expect(hookHandler.createCustomHook<number>("test-hook")).to.equal(false);
+		expect(hookHandler.custom["test-hook"].name).to.equal("test-hook");
+		await expect(hookHandler.custom["test-hook"].fire({})).to.not.be.rejected;
+	});
+
+	it("should not allow to create a custom hook with a native hook name", () => {
+		expect(hookHandler.createCustomHook<number>("launch")).to.equal(false);
+		expect(hookHandler.custom["launch"]).to.equal(undefined);
+	});
+
 	it("should be able to get a native hook by name", () => {
 		expect(hookHandler.getHookByName("launch")!.name).to.equal("launch");
 	});
@@ -39,12 +50,20 @@ describe("HookHandler", () => {
 		expect(hookHandler.getHookByName("test-hook")!.name).to.equal("test-hook");
 	});
 
+	it("should return null when getting a hook by wrong name", () => {
+		expect(hookHandler.getHookByName("not-a-hook")).to.equal(null);
+	});
+
 	it("should be able to create links to native hooks", () => {
-		voidLinks.forEach(link => hookHandler.linkToHookByName("launch", link));
+		expect(voidLinks.forEach(link => hookHandler.linkToHookByName("launch", link)));
 	});
 
 	it("should be able to create links to custom hooks", () => {
-		numberLinks.forEach(link => hookHandler.linkToHookByName("test-hook", link));
+		expect(voidLinks.forEach(link => hookHandler.linkToHookByName("test-hook", link)));
+	});
+
+	it("should not fail when attempting to link to an unknown hook", () => {
+		expect(numberLinks.forEach(link => hookHandler.linkToHookByName("not-a-hook", link)));
 	});
 
 	it("should have its hooks functioning after they have been linked to", async () => {

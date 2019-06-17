@@ -1,0 +1,23 @@
+{
+  "name": "ipc-example__blok",
+  "version": "0.0.1",
+  "description": "An example of an ipc-blok",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsc": "tsc",
+    "dev": "ts-node-dev --respawn --transpileOnly ./app/app.ts",
+    "prod": "tsc && node ./build/app.js"
+  },
+  "author": "Teemu Karppinen",
+  "license": "MIT",
+  "dependencies": {
+    "node-ipc": "^9.1.1",
+    "ts-node-dev": "^1.0.0-pre.39",
+    "typescript": "^3.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^12.0.3",
+    "@types/node-ipc": "^9.1.1"
+  }
+}

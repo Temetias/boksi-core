@@ -6,7 +6,7 @@
  * @returns An empty promise.
  */
 export const timeout = (opts: { ms: number, forceFail?: boolean }): Promise<void> => (
-	new Promise((resolve, reject) => setTimeout(opts.forceFail ? reject : resolve, opts.ms))
+	new Promise((resolve, reject) => setTimeout(opts.forceFail ? () => reject(new Error("Error")) : resolve, opts.ms))
 );
 
 /**

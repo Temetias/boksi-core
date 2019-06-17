@@ -1,0 +1,5 @@
+{
+	"name": "ipc-example-broken",
+	"type": "ipc",
+	"entryPoint": "build/app/app.js"
+}
