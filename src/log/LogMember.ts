@@ -8,13 +8,6 @@ import fs from "fs";
 export default abstract class LogMember {
 
 	/**
-	 * If the logmember is able to log to the file.
-	 *
-	 * @readonly
-	 */
-	private readonly isAbleToLogToFile: boolean;
-
-	/**
 	 * @constructor
 	 *
 	 * @param source The source from which the loggin message will be marked to come from.
@@ -35,7 +28,9 @@ export default abstract class LogMember {
 		 */
 		private readonly dir: string,
 	) {
-		this.isAbleToLogToFile = this.initDirectory();
+		if (!fs.existsSync(this.dir)) {
+			fs.mkdirSync(this.dir);
+		}
 	}
 
 	/**
@@ -53,9 +48,6 @@ export default abstract class LogMember {
 			console.log(title);
 			console.log(formattedMessage);
 		}
-		if (!this.isAbleToLogToFile) {
-			return;
-		}
 		if (!fs.existsSync(file)) {
 			fs.writeFileSync(
 				file,
@@ -67,21 +59,5 @@ export default abstract class LogMember {
 				`\n${title}\n${formattedMessage}`,
 			);
 		}
-	}
-
-	/**
-	 * Checks if the logging directory exists. If not, creates one.
-	 *
-	 * @returns The success state of the operation.
-	 */
-	private initDirectory(): boolean {
-		if (!this.dir) {
-			console.error("No logging directory specified in boksi-conf.json!");
-			return false;
-		}
-		if (!fs.existsSync(this.dir)) {
-			fs.mkdirSync(this.dir);
-		}
-		return true;
 	}
 }

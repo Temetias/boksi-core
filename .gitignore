@@ -65,3 +65,4 @@ build/
 
 # Test tmp dir
 test/tmp/
+test/tmp-tmp/

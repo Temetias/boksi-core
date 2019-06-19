@@ -1,4 +1,4 @@
-import { readdir, unlink } from "fs";
+import { readdir, unlink, readFileSync } from "fs";
 import { join } from "path";
 
 /**
@@ -52,4 +52,9 @@ export const clearDir = (dirPath: string) => {
 			});
 		});
 	});
+};
+
+export const lookFromFile = (path: string, value: string): boolean => {
+	const fileTxt = readFileSync(path, { encoding: "utf-8" });
+	return fileTxt.includes(value);
 };
