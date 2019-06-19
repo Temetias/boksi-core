@@ -54,7 +54,12 @@ export const clearDir = (dirPath: string) => {
 	});
 };
 
-export const lookFromFile = (path: string, value: string): boolean => {
-	const fileTxt = readFileSync(path, { encoding: "utf-8" });
-	return fileTxt.includes(value);
-};
+/**
+ * Looks for a string in a file.
+ *
+ * @param path The path to the file.
+ * @param value The value to look for in the file.
+ */
+export const lookFromFile = (path: string, value: string): boolean => (
+	readFileSync(path, { encoding: "utf-8" }).includes(value)
+);
