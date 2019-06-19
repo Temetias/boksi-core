@@ -58,7 +58,7 @@ export default class Core extends LogMember {
 		 */
 		private hookHandler: HookHandler,
 	) {
-		super("Core");
+		super("Core", config.logDir);
 		this.log("Initializing core...");
 		const blokDirs = this.getBlokDirs();
 		const blokBuildPromises = blokDirs.map(blokDir => this.buildBlok(blokDir));
@@ -150,14 +150,14 @@ export default class Core extends LogMember {
 		}
 		switch (config!.type!.toLowerCase()) {
 			case "ipc":
-				const ipcBlok = new IPCBlok(config!, dir, this.hookHandler);
+				const ipcBlok = new IPCBlok(config!, dir, this.hookHandler, this.config.logDir);
 				if (await ipcBlok.build()) {
 					this.bloks.push(ipcBlok);
 				}
 				break
 			;
 			case "runtime":
-				const runtimeBlok = new RuntimeBlok(config!, dir, this.hookHandler);
+				const runtimeBlok = new RuntimeBlok(config!, dir, this.hookHandler, this.config.logDir);
 				if (await runtimeBlok.build()) {
 					this.bloks.push(runtimeBlok);
 				}

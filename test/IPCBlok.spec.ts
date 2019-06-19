@@ -1,6 +1,7 @@
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import "mocha";
+import { join } from "path";
 import IPCBlok from "../src/bloks/IPCBlok";
 import HookHandler from "../src/hooks/HookHandler";
 import { configs } from "../types/configs/configs";
@@ -10,10 +11,12 @@ const expect = chai.expect;
 chai.use(chaiAsPromised);
 
 describe("IPCBlok", () => {
+	const logDir = join(__dirname, "/tmp");
 	const blok = new IPCBlok(
 		config as configs.BlokConfig,
 		"D:/Git-projects/boksi/boksi-core/test/fixtures/test-bloks/IPC-example__blok",
-		new HookHandler(),
+		new HookHandler(logDir),
+		logDir,
 	);
 
 	it("should have a name that is equal to the config", () => {

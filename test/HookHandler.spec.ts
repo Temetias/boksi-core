@@ -1,6 +1,7 @@
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import "mocha";
+import { join } from "path";
 import HookHandler from "../src/hooks/HookHandler";
 import Link from "../src/hooks/Link";
 import { timeout } from "./utils/utils";
@@ -9,7 +10,8 @@ const expect = chai.expect;
 chai.use(chaiAsPromised);
 
 describe("HookHandler", () => {
-	const hookHandler = new HookHandler();
+	const logDir = join(__dirname, "/tmp");
+	const hookHandler = new HookHandler(logDir);
 	const numberLinks = [
 		new Link<number>(ms => timeout({ ms })),
 		new Link<number>(ms => timeout({ ms })),

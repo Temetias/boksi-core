@@ -14,8 +14,8 @@ export default class RuntimeBlok extends Blok {
 	/**
 	 * {@inheritdoc Blok.constructor}
 	 */
-	public constructor(config: configs.BlokConfig, dirPath: string, hookHandler: HookHandler) {
-		super(config, dirPath, hookHandler);
+	public constructor(config: configs.BlokConfig, dirPath: string, hookHandler: HookHandler, logDir: string) {
+		super(config, dirPath, hookHandler, logDir);
 	}
 
 	/**

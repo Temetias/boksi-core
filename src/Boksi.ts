@@ -16,7 +16,7 @@ class Boksi {
 	/**
 	 * Boksis hook system which exposes multiple triggers in which the bloks can attach to to trigger different actions.
 	 */
-	public hooks = new HookHandler();
+	public hooks = new HookHandler(config.logDir);
 
 	/**
 	 * The core functionality of Boksi.

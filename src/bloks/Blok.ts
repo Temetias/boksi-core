@@ -38,8 +38,7 @@ export default abstract class Blok extends LogMember {
 	/**
 	 * @constructor
 	 *
-	 * @param config The configuration for the blok.
-	 * @param dirPath The absolute directory path for the blok.
+	 * @param logDir {@inheritdoc LogMember.dir}
 	 */
 	public constructor(
 
@@ -63,8 +62,10 @@ export default abstract class Blok extends LogMember {
 		 * @readonly
 		 */
 		protected readonly hookHandler: HookHandler,
+
+		logDir: string,
 	) {
-		super(config.name!);
+		super(config.name!, logDir);
 		this.name = config.name!;
 		this.type = config.type!;
 	}

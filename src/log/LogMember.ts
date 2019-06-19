@@ -1,5 +1,4 @@
 import fs from "fs";
-import boksiConfig from "../../boksi-conf.json";
 
 /**
  * A class representation of a member in the Boksi logging system. Used to unify the logging procedure.
@@ -28,6 +27,13 @@ export default abstract class LogMember {
 		 * @readonly
 		 */
 		private readonly source: string,
+
+		/**
+		 * Absolute path to the directory where boksi is logging.
+		 *
+		 * @readonly
+		 */
+		private readonly dir: string,
 	) {
 		this.isAbleToLogToFile = this.initDirectory();
 	}
@@ -42,7 +48,7 @@ export default abstract class LogMember {
 	public log(message: string, error?: Error | string): void {
 		const title = `${new Date().toLocaleString()} - from ${this.source}:`;
 		const formattedMessage = `${message} ${error ? "Trace below:\n----\n" + error + "\n----" : ""}\n`;
-		const file = `${boksiConfig.logDir}/${new Date().toLocaleDateString()}.txt`;
+		const file = `${this.dir}/${new Date().toLocaleDateString()}.txt`;
 		if (process.env.NODE_ENV === "development") {
 			console.log(title);
 			console.log(formattedMessage);
@@ -69,12 +75,12 @@ export default abstract class LogMember {
 	 * @returns The success state of the operation.
 	 */
 	private initDirectory(): boolean {
-		if (!boksiConfig.logDir) {
+		if (!this.dir) {
 			console.error("No logging directory specified in boksi-conf.json!");
 			return false;
 		}
-		if (!fs.existsSync(boksiConfig.logDir)) {
-			fs.mkdirSync(boksiConfig.logDir);
+		if (!fs.existsSync(this.dir)) {
+			fs.mkdirSync(this.dir);
 		}
 		return true;
 	}

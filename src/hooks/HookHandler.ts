@@ -41,9 +41,11 @@ export default class HookHandler extends LogMember {
 
 	/**
 	 * @constructor
+	 *
+	 * @param logDir {@inheritdoc LogMember.dir}
 	 */
-	public constructor() {
-		super("hook-handler");
+	public constructor(logDir: string) {
+		super("hook-handler", logDir);
 	}
 
 	/**

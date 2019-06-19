@@ -16,7 +16,8 @@ describe("Core", function() {
 	coreConfig.bloksDir = join(__dirname, coreConfig.bloksDir);
 	coreConfig.logDir = join(__dirname, "/tmp");
 
-	const hookHandler = new HookHandler();
+	const logDir = join(__dirname, "/tmp");
+	const hookHandler = new HookHandler(logDir);
 	let core: Core | null = null;
 
 	it("should construct succesfully (TODO)", () => {
