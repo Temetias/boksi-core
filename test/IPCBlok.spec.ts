@@ -6,12 +6,15 @@ import IPCBlok from "../src/bloks/IPCBlok";
 import HookHandler from "../src/hooks/HookHandler";
 import { configs } from "../types/configs/configs";
 import config from "./fixtures/test-bloks/IPC-example__blok/blok_setup/blok-conf.json";
+import { clearDir } from "./utils/utils";
 
 const expect = chai.expect;
 chai.use(chaiAsPromised);
 
 describe("IPCBlok", () => {
 	const logDir = join(__dirname, "/tmp");
+	after(() => clearDir(logDir));
+
 	const blok = new IPCBlok(
 		config as configs.BlokConfig,
 		"D:/Git-projects/boksi/boksi-core/test/fixtures/test-bloks/IPC-example__blok",

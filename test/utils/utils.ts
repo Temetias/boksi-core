@@ -1,3 +1,6 @@
+import { readdir, unlink } from "fs";
+import { join } from "path";
+
 /**
  * A timeout function with option to fail to simulate async.
  *
@@ -29,4 +32,24 @@ export const asyncValue = async (ms: number, base: string, errorToThrow?: Error)
 	} catch (_) {
 		throw errorToThrow;
 	}
+};
+
+/**
+ * Utility cleanup function to clear tmp files used in testing.
+ *
+ * @param dirPath The directory to clear.
+ */
+export const clearDir = (dirPath: string) => {
+	readdir(dirPath, (err1, files) => {
+		if (err1) {
+			throw err1;
+		}
+		files.forEach(file => {
+			unlink(join(dirPath, file), err2 => {
+				if (err2) {
+					throw err2;
+				}
+			});
+		});
+	});
 };
